@@ -10,7 +10,7 @@ def read_matrix_from_file(file_path):
 def is_valid_position(matrix, x, y, vision_range, new_x, new_y):
     return ((new_x >= x - vision_range and new_x < x + vision_range + 1) 
             and (new_y >= y - vision_range and new_y < y + vision_range + 1)
-            and (new_x >= 0 and new_x < len(matrix) and new_y >= 0 and new_y < len(matrix[0])))
+            and ((new_x >= 0 and new_x < len(matrix)) and (new_y >= 0 and new_y < len(matrix[0]))))
     
 def decide_type(x, y, new_x, new_y):
     if (new_x == x and new_y == y):
@@ -201,17 +201,30 @@ def mark_true_type_4(check, no_vision, vision_range, x, y, new_x, new_y):
                         
                 count += 1
     
+    
+def write_matrix_to_file(file_path, matrix):
+    with open(file_path, 'a') as file:
+        for row in matrix:
+            file.write(' '.join(map(str, [int(col) for col in row])) + '\n')
+        file.write('\n')
+    
+def print_matrix(matrix):
+    for row in matrix:
+        for col in row:
+            print(int(col), end = ' ')
+        print()
+    print()
         
-def flood_fill(matrix, check, no_vision, x, y, vision_range):
-
-    new_x = x # row = matrix
-    new_y = y # col = matrix[0]
+def flood_fill(matrix, check, no_vision, x, y, new_x, new_y, vision_range):
     
-    check[x][y] = True
+    check[new_x][new_y] = True
     
-    for dx in range(-1,1):
-        for dy in range(-1,1):
+    for dx in range(-1,2):
+        for dy in range(-1,2):
             if is_valid_position(matrix, x, y, vision_range, new_x + dx, new_y + dy):
+                print_matrix(check)
+                print_matrix(no_vision)
+                
                 if(check[new_x + dx][new_y + dy] == False):
                     check[new_x + dx][new_y + dy] = True
                     if (matrix[new_x + dx][new_y + dy] == 1):
@@ -225,9 +238,7 @@ def flood_fill(matrix, check, no_vision, x, y, vision_range):
                         elif(decide_type(x, y, new_x + dx, new_y + dy) == 4):
                             mark_true_type_4(check, no_vision, vision_range, x, y, new_x + dx, new_y + dy)             
                     else:
-                        new_x = new_x + dx
-                        new_y = new_y + dy
-                        flood_fill(matrix, check, no_vision, new_x, new_y, vision_range)
+                        flood_fill(matrix, check, no_vision, x, y, new_x + dx, new_y + dy, vision_range)
                         
                         
 def mark_vision(matrix, x, y, vision_range):
@@ -237,21 +248,17 @@ def mark_vision(matrix, x, y, vision_range):
     no_vision = []
     no_vision = [[False] * len(matrix[0]) for _ in range(len(matrix))]
     
-    flood_fill(matrix, check, no_vision, x, y, vision_range)
+    flood_fill(matrix, check, no_vision, x, y, x, y, vision_range)
     
-    return no_vision
+    return no_vision, check
             
                         
                 
            
-        
-matrix = read_matrix_from_file('test.txt')
-no_vision = mark_vision(matrix, 4, 3, 3)
 
-for row in no_vision:
-    for col in row:
-        print(int(col), end = ' ')
-    print()
+            
+
+    
     
   
     
