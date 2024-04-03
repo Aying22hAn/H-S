@@ -4,23 +4,26 @@ class Cell:
         self.x = x
         self.y = y
         self.type = type
-        self.color = None # set up color depending on the type of cell
-
-class Map:
-    def __init__(self, height, width, board, obstacles):
-        self.height = height
-        self.width = width
-        self.board = board
-        self.obstacles = obstacles
-
-    
+        
+    def move(self, dx, dy):
+        self.x += dx
+        self.y += dy
+class EmptyCell(Cell):
+    def __init__(self, x, y, type):
+        super().__init__(x, y, type)
+        
+        
+        
 class Agent(Cell):
     
     def __init__(self, x, y, type, map):
         super().__init__(x, y, type)
         self.map = map
         
-    
+    def move(self, dx, dy):
+        super().move(dx, dy)
+        self.x += dx
+        self.y += dy
 
 class Seeker(Agent):
     pass
@@ -70,19 +73,21 @@ class BoardGame:
         for coordinate in self.obstacles:
             print(coordinate, end=' ')
             print()
-    #UI need to modify this function to get the color code for each cell
-    def set_color_for_obstacle(self):
-        for coordinate in self.obstacles:
-            x1, y1 = coordinate[0]
-            x2, y2 = coordinate[1]
-            for i in range(x1, x2 + 1):
-                for j in range(y1, y2 + 1):
-                    self.board[i][j].color = 'black' # temp color(will be replace by color code)    
-    
-    def create_map(self):
-        # Create an instance of Map
-        map = Map(self.height, self.width, [[cell.type for cell in row] for row in self.board], self.obstacles)
-        return map
+
+class HideAndSeekGame:
+    def __init__(self, width, height, max_steps, vision_range):
+        self.map = BoardGame.initialize_from_file('input.txt')
+        self.max_steps = max_steps
+        self.steps_taken = 0
+        self.vision_range = vision_range
+        
+    def seeker_vision(self):
+        for i in range(-self.vision_range, self.vision_range + 1):
+            for j in range(-self.vision_range, self.vision_range + 1):
+                if 0 <= seeker.x + i < self.map.width and 0 <= seeker.y + j < self.map.height:
+                    vision.append(self.map.board[seeker.y + j][seeker.x + i])
+        return vision
+         
     
     
                 
