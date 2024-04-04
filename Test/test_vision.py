@@ -110,7 +110,7 @@ def mark_true_type_3(check, no_vision, vision_range, x, y, new_x, new_y):
     if (new_x > x and new_y > y):#Quadrant IV
         if((abs(new_x - x) == vision_range) 
            or (abs(new_x - x) == min(x + vision_range, len(check) - 1) - x) 
-            or (abs(new_x - x) == min(y + vision_range, len(check[0]) - 1)) - y):
+            or (abs(new_x - x) == min(y + vision_range, len(check[0]) - 1) - y)):
             return
         
         for i in range(1, vision_range):
@@ -343,19 +343,27 @@ def mark_vision(matrix, x, y, vision_range):
 
 matrix = read_matrix_from_file('input.txt')
 
-check, no_vision = mark_vision(matrix, 8, 5, 3)
 
-with open("output.txt", "w") as file:
-    for row in no_vision:
-        for col in row:
-            file.write(str(int(col)) + ' ')
-        file.write('\n')
-    file.write('\n')
-    
-    for row in check:
-        for col in row:
-            file.write(str(int(col)) + ' ')
-        file.write('\n')
+while(True):
+    chr = input()
+    if chr == 'q':
+        break
+    else:
+        x, y = int(input()), int(input())
+        
+        check, no_vision = mark_vision(matrix, x, y, 3)
+
+        with open("output.txt", "w") as file:
+            for row in no_vision:
+                for col in row:
+                    file.write(str(int(col)) + ' ')
+                file.write('\n')
+            file.write('\n')
+            
+            for row in check:
+                for col in row:
+                    file.write(str(int(col)) + ' ')
+                file.write('\n')
                 
            
 

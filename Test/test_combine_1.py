@@ -276,7 +276,7 @@ def mark_true_type_3(check, no_vision, vision_range, x, y, new_x, new_y):
     if (new_x > x and new_y > y):#Quadrant IV
         if((abs(new_x - x) == vision_range) 
            or (abs(new_x - x) == min(x + vision_range, len(check) - 1) - x) 
-            or (abs(new_x - x) == min(y + vision_range, len(check[0]) - 1)) - y):
+            or (abs(new_x - x) == min(y + vision_range, len(check[0]) - 1) - y)):
             return
         
         for i in range(1, vision_range):
@@ -732,7 +732,7 @@ while True:
             display_game_board()
             if current_time - moving_time > moving_delay:
                 moving_time = current_time
-                #move_seekers()
+                move_seekers()
                 
     pygame.display.flip()
     clock.tick(10000)
