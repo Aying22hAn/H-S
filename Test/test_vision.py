@@ -32,101 +32,163 @@ def decide_type(x, y, new_x, new_y):
     
 def mark_true_type_1(check, no_vision, vision_range, x, y, new_y):
     if new_y > y:
+        
+        if(abs(new_y - y) == vision_range
+           or abs(new_y - y) == min(y + vision_range, len(check[0]) - 1) - y):
+            return
+        
         for col in range(new_y + 1, min(y + vision_range + 1, len(check[0]))):
             check[x][col] = True
             no_vision[x][col] = True
+        
+        if(is_valid_position(check, x, y, vision_range, x + 1, min(y + vision_range, len(check[0]) - 1))):  
+            check[x + 1][min(y + vision_range, len(check[0]) - 1)] = True
+            no_vision[x + 1][min(y + vision_range, len(check[0]) - 1)] = True 
             
-        check[x + 1][min(y + vision_range, len(check[0]))] = True
-        no_vision[x + 1][min(y + vision_range, len(check[0]))] = True 
-        check[x - 1][min(y + vision_range, len(check[0]))] = True
-        no_vision[x - 1][min(y + vision_range, len(check[0]))] = True 
+        if(is_valid_position(check, x, y, vision_range, x - 1, min(y + vision_range, len(check[0]) - 1))):  
+            check[x - 1][min(y + vision_range, len(check[0]) - 1)] = True
+            no_vision[x - 1][min(y + vision_range, len(check[0]) - 1)] = True 
          
     else:
+        
+        if(abs(new_y - y) == vision_range
+              or abs(new_y - y) == y - max(y - vision_range, 0)):
+            return
+        
         for col in range(max(y - vision_range, 0), new_y):
             check[x][col] = True
             no_vision[x][col] = True
-    
-        check[x + 1][max(y - vision_range, 0)] = True  
-        no_vision[x + 1][max(y - vision_range, 0)] = True
-        check[x - 1][max(y - vision_range, 0)] = True
-        no_vision[x - 1][max(y - vision_range, 0)] = True 
-              
+            
+            
+        if(is_valid_position(check, x, y, vision_range, x + 1, max(y - vision_range, 0))):  
+            check[x + 1][max(y - vision_range, 0)] = True
+            no_vision[x + 1][max(y - vision_range, 0)] = True
+            
+        if(is_valid_position(check, x, y, vision_range, x - 1, max(y - vision_range, 0))):  
+            check[x - 1][max(y - vision_range, 0)] = True
+            no_vision[x - 1][max(y - vision_range, 0)] = True 
+                
         
             
 def mark_true_type_2(check, no_vision, vision_range, x, y, new_x):
     if new_x > x:
+        if((abs(new_x - x) == vision_range)
+           or (abs(new_x - x) == min(x + vision_range, len(check) - 1) - x)):
+            return
+        
         for col in range(new_x + 1, min(x + vision_range + 1, len(check))):
             check[col][y] = True
             no_vision[col][y] = True
         
-        check[min(x + vision_range, len(check))][y + 1] = True
-        no_vision[min(x + vision_range, len(check))][y + 1] = True
-        check[min(x + vision_range, len(check))][y - 1] = True
-        no_vision[min(x + vision_range, len(check))][y - 1] = True
+        if(is_valid_position(check, x, y, vision_range, min(x + vision_range, len(check) - 1), y + 1)):
+            check[min(x + vision_range, len(check) - 1)][y + 1] = True
+            no_vision[min(x + vision_range, len(check) - 1)][y + 1] = True
+            
+        if(is_valid_position(check, x, y, vision_range, min(x + vision_range, len(check) - 1), y - 1)): 
+            check[min(x + vision_range, len(check) - 1)][y - 1] = True
+            no_vision[min(x + vision_range, len(check) - 1)][y - 1] = True
         
     else:
+        
+        if((abs(new_x - x) == vision_range)
+              or (abs(new_x - x) == x - max(x - vision_range, 0))):
+                return
+            
         for col in range(max(x - vision_range, 0), new_x):
             check[col][y] = True
             no_vision[col][y] = True
             
-        check[max(x - vision_range, 0)][y + 1] = True
-        no_vision[max(x - vision_range, 0)][y + 1] = True
-        check[max(x - vision_range, 0)][y - 1] = True
-        no_vision[max(x - vision_range, 0)][y - 1] = True
+        if(is_valid_position(check, x, y, vision_range, max(x - vision_range, 0), y + 1)): 
+            check[max(x - vision_range, 0)][y + 1] = True
+            no_vision[max(x - vision_range, 0)][y + 1] = True
+            
+        if(is_valid_position(check, x, y, vision_range, max(x - vision_range, 0), y - 1)):    
+            check[max(x - vision_range, 0)][y - 1] = True
+            no_vision[max(x - vision_range, 0)][y - 1] = True
             
 def mark_true_type_3(check, no_vision, vision_range, x, y, new_x, new_y):
     if (new_x > x and new_y > y):#Quadrant IV
+        if((abs(new_x - x) == vision_range) 
+           or (abs(new_x - x) == min(x + vision_range, len(check) - 1) - x) 
+            or (abs(new_x - x) == min(y + vision_range, len(check[0]) - 1)) - y):
+            return
+        
         for i in range(1, vision_range):
             if is_valid_position(check, x, y, vision_range, new_x + i, new_y + i):
                 check[new_x + i][new_y + i] = True
                 no_vision[new_x + i][new_y + i] = True
-                
-        check[min(x + vision_range, len(check))][min(y + vision_range, len(check[0]))] = True
-        check[min(x + vision_range, len(check))][min(y + vision_range, len(check[0])) - 1] = True
-        check[min(x + vision_range, len(check)) - 1][min(y + vision_range, len(check[0]))] = True
-        no_vision[min(x + vision_range, len(check))][min(y + vision_range, len(check[0]))] = True
-        no_vision[min(x + vision_range, len(check))][min(y + vision_range, len(check[0])) - 1] = True
-        no_vision[min(x + vision_range, len(check)) - 1][min(y + vision_range, len(check[0]))] = True
+        
+        if(abs((min(x + vision_range, len(check) - 1) - x)) == abs(min(y + vision_range, len(check[0]) - 1) - y)):
+            check[min(x + vision_range, len(check) - 1)][min(y + vision_range, len(check[0]) - 1)] = True
+            check[min(x + vision_range, len(check) - 1)][min(y + vision_range, len(check[0]) - 1) - 1] = True
+            check[min(x + vision_range, len(check) - 1) - 1][min(y + vision_range, len(check[0]) - 1)] = True
+            no_vision[min(x + vision_range, len(check) - 1)][min(y + vision_range, len(check[0]) - 1)] = True
+            no_vision[min(x + vision_range, len(check) - 1)][min(y + vision_range, len(check[0]) - 1) - 1] = True
+            no_vision[min(x + vision_range, len(check) - 1) - 1][min(y + vision_range, len(check[0]) - 1)] = True
+        
             
     elif (new_x < x and new_y < y):#Quadrant II
+        
+        if((abs(new_x - x) == vision_range) 
+           or (abs(new_x - x) == x - max(x - vision_range, 0)) 
+            or (abs(new_x - x) == y - max(y - vision_range, 0))):
+            return
+        
         for i in range(1, vision_range):
             if is_valid_position(check, x, y, vision_range, new_x - i, new_y - i):
                 check[new_x - i][new_y - i] = True
                 no_vision[new_x - i][new_y - i] = True
-                
+        
+        if(abs(max(x - vision_range, 0) - x) == abs(max(y - vision_range, 0) - y)):        
             check[max(x - vision_range, 0)][max(y - vision_range, 0)] = True
             check[max(x - vision_range, 0) + 1][max(y - vision_range, 0)] = True
             check[max(x - vision_range, 0)][max(y - vision_range, 0) + 1] = True
             no_vision[max(x - vision_range, 0)][max(y - vision_range, 0)] = True
             no_vision[max(x - vision_range, 0) + 1][max(y - vision_range, 0)] = True
             no_vision[max(x - vision_range, 0)][max(y - vision_range, 0) + 1] = True
-            
+              
+        
     elif (new_x > x and new_y < y):#Quadrant III
+        
+        if((abs(new_x - x) == vision_range) 
+           or (abs(new_x - x) == min(x + vision_range, len(check) - 1) - x) 
+            or (abs(new_x - x) == y - max(y - vision_range, 0))):
+            return
+        
         for i in range(1, vision_range):
             if is_valid_position(check, x, y, vision_range, new_x + i, new_y - i):
                 check[new_x + i][new_y - i] = True
                 no_vision[new_x + i][new_y - i] = True
+        
+        if(abs(min(x + vision_range, len(check) - 1) - x) == abs(max(y - vision_range, 0) - y)):    
+            check[min(x + vision_range, len(check) - 1)][max(y - vision_range, 0)] = True
+            check[min(x + vision_range, len(check) - 1)][max(y - vision_range, 0) + 1] = True
+            check[min(x + vision_range, len(check) - 1) - 1][max(y - vision_range, 0)] = True
+            no_vision[min(x + vision_range, len(check) - 1)][max(y - vision_range, 0)] = True
+            no_vision[min(x + vision_range, len(check) - 1)][max(y - vision_range, 0) + 1] = True
+            no_vision[min(x + vision_range, len(check) - 1) - 1][max(y - vision_range, 0)] = True
             
-        check[min(x + vision_range, len(check))][max(y - vision_range, 0)] = True
-        check[min(x + vision_range, len(check))][max(y - vision_range, 0) + 1] = True
-        check[min(x + vision_range, len(check)) - 1][max(y - vision_range, 0)] = True
-        no_vision[min(x + vision_range, len(check))][max(y - vision_range, 0)] = True
-        no_vision[min(x + vision_range, len(check))][max(y - vision_range, 0) + 1] = True
-        no_vision[min(x + vision_range, len(check)) - 1][max(y - vision_range, 0)] = True
         
     else:#Quadrant I
+        
+        if((abs(new_x - x) == vision_range) 
+           or (abs(new_x - x) == x - max(x - vision_range, 0)) 
+            or (abs(new_x - x) == min(y + vision_range, len(check[0]) - 1) - y)):
+            return
+        
         for i in range(1, vision_range):
             if is_valid_position(check, x, y, vision_range, new_x - i, new_y + i):
                 check[new_x - i][new_y + i] = True
                 no_vision[new_x - i][new_y + i] = True
-            
-        check[max(x - vision_range, 0)][min(y + vision_range, len(check[0]))] = True
-        check[max(x - vision_range, 0)][min(y + vision_range, len(check[0])) - 1] = True
-        check[max(x - vision_range, 0) + 1][min(y + vision_range, len(check[0]))] = True
-        no_vision[max(x - vision_range, 0)][min(y + vision_range, len(check[0]))] = True
-        no_vision[max(x - vision_range, 0)][min(y + vision_range, len(check[0])) - 1] = True
-        no_vision[max(x - vision_range, 0) + 1][min(y + vision_range, len(check[0]))] = True
-                
+        
+        if(abs(max(x - vision_range, 0) - x) == abs(min(y + vision_range, len(check[0]) - 1) - y)):    
+            check[max(x - vision_range, 0)][min(y + vision_range, len(check[0]) - 1)] = True
+            check[max(x - vision_range, 0)][min(y + vision_range, len(check[0]) - 1) - 1] = True
+            check[max(x - vision_range, 0) + 1][min(y + vision_range, len(check[0]) - 1)] = True
+            no_vision[max(x - vision_range, 0)][min(y + vision_range, len(check[0]) - 1)] = True
+            no_vision[max(x - vision_range, 0)][min(y + vision_range, len(check[0]) - 1) - 1] = True
+            no_vision[max(x - vision_range, 0) + 1][min(y + vision_range, len(check[0]) - 1)] = True
+        
                 
 def mark_true_type_4(check, no_vision, vision_range, x, y, new_x, new_y):
     if(new_x < x and new_y > y): #Quadrant I
@@ -280,7 +342,8 @@ def mark_vision(matrix, x, y, vision_range):
     return check, no_vision
 
 matrix = read_matrix_from_file('input.txt')
-check, no_vision = mark_vision(matrix, 4, 3, 3)
+
+check, no_vision = mark_vision(matrix, 8, 5, 3)
 
 with open("output.txt", "w") as file:
     for row in no_vision:
