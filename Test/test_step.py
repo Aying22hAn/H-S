@@ -21,11 +21,7 @@ GREEN = (0, 255, 0)
 BLUE = (0, 0, 255)
 GREY = (50, 50, 50)
 
-# Game board setting
-board_size = 10
-board_size_height = 10 + 2
-board_size_width = 10 + 2
-cell_size = min(width // board_size_width - 2, height // board_size_height - 2)
+
 
 
 
@@ -41,10 +37,10 @@ seekers = []
 number_of_seekers = 0
 
 # Announcement
-announcement_icon = pygame.image.load(os.path.join(os.getcwd(), 'announcement.png'))
-announcement_icon = pygame.transform.scale(announcement_icon, (cell_size, cell_size))
-announcements = []
-force_announcement = True
+# #announcement_icon = pygame.image.load(os.path.join(os.getcwd(), 'announcement.png'))
+# announcement_icon = pygame.transform.scale(announcement_icon, (cell_size, cell_size))
+# announcements = []
+# force_announcement = True
 
 # Temporary obstacles and wall
 #obstacles = [(3, 3, 2, 1), (6, 5, 1, 3),(10, 7, 2, 1)] # (x, y, width, height)
@@ -546,6 +542,15 @@ def read_matrix_from_file(file_path):
     return matrix
 
 matrix = read_matrix_from_file('input.txt')
+
+# Game board setting
+board_size = 10
+board_size_height = len(matrix) + 2
+board_size_width = len(matrix[0]) + 2
+cell_size = min(width // board_size_width - 2, height // board_size_height - 2)
+
+
+
 # Find position of walls, hiders, and seekers
 walls = [(row_index, col_index) for row_index, row in enumerate(matrix) for col_index, cell in enumerate(row) if cell == 1] 
 hiders = [(row_index, col_index) for row_index, row in enumerate(matrix) for col_index, cell in enumerate(row) if cell == 2] 
@@ -726,6 +731,7 @@ def darken_cell(x, y):
 
 def show_observation_range(position, range_limit = 3):
     check, no_vision = mark_vision(matrix, position[0], position[1], range_limit)
+    
     for dx in range(-range_limit, range_limit + 1):
         for dy in range(-range_limit, range_limit + 1):
             # Calculate the cell's position relative to the agent
@@ -733,7 +739,7 @@ def show_observation_range(position, range_limit = 3):
             cell_y = position[0] + dy
             # Ensure the cell is within the game board boundaries
                 
-            if 0 <= cell_y < board_size_height - 2 and 0 <= cell_x < board_size_width - 2:
+            if 0 <= cell_y < len(matrix) and 0 <= cell_x < len(matrix[0]):
                 if no_vision[cell_y][cell_x] != 1:
                     darken_cell(cell_x + 1, cell_y + 1)  # Adjust for grid off
 
