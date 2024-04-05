@@ -304,24 +304,36 @@ def flood_fill(matrix, check, no_vision, x, y, new_x, new_y, vision_range):
                             mark_true_type_4(check, no_vision, vision_range, x, y, new_x + dx, new_y + dy)             
                     else:
                         flood_fill(matrix, check, no_vision, x, y, new_x + dx, new_y + dy, vision_range)
-   
-def check_surrounding(no_vision, x, y, vision_range):
+  
+def check_surrounding(no_vision, x, y, new_x, new_y, vision_range):
     cross = 0
-    X_count = 0
                  
     for(dx, dy) in [(-1,0), (1,0), (0,-1), (0,1)]:
-        if((max(0, x - vision_range) <= x + dx < min(len(matrix), x + vision_range + 1)) 
-           and (max(0, y - vision_range) <= y + dy < min(len(matrix[0]), y + vision_range + 1))
-           and no_vision[x + dx][y + dy] == True):
+        if((max(0, x - vision_range) <= new_x + dx < min(len(matrix), x + vision_range + 1)) 
+           and (max(0, y - vision_range) <= new_y + dy < min(len(matrix[0]), y + vision_range + 1))
+           and no_vision[new_x + dx][new_y + dy] == True):
             cross = cross + 1
+    if(cross == 4):
+        return True    
     
-    for(dx, dy) in [(-1,-1), (-1,1), (1,-1), (1,1)]:
-        if((max(0, x - vision_range) <= x + dx < min(len(matrix), x + vision_range + 1)) 
-           and (max(0, y - vision_range) <= y + dy < min(len(matrix[0]), y + vision_range + 1))
-           and no_vision[x + dx][y + dy] == True):
-            X_count = X_count + 1
-            
-    return (cross == 4 or X_count == 4)
+    if(new_x < x and new_y > y):
+        if(no_vision[new_x + 1][new_y] == True and no_vision[new_x][new_y - 1] == True):
+            return True
+        
+    elif(new_x < x and new_y < y):
+        if(no_vision[new_x + 1][new_y] == True and no_vision[new_x][new_y + 1] == True):
+            return True
+    
+    elif(new_x > x and new_y < y):
+        if(no_vision[new_x - 1][new_y] == True and no_vision[new_x][new_y + 1] == True):
+            return True
+    
+    elif(new_x > x and new_y > y):
+        if(no_vision[new_x - 1][new_y] == True and no_vision[new_x][new_y - 1] == True):
+            return True
+    
+    return False 
+    
                         
 def mark_vision(matrix, x, y, vision_range):
     
@@ -336,12 +348,12 @@ def mark_vision(matrix, x, y, vision_range):
     
     for row in range(max(0, x - vision_range), min(len(matrix), x + vision_range + 1)):
         for col in range(max(0, y - vision_range), min(len(matrix[0]), y + vision_range + 1)):
-            if(row != x and col != y and check_surrounding(no_vision, row, col, vision_range) == True):
+            if(row != x and col != y and check_surrounding(no_vision, x, y, row, col, vision_range) == True):
                 no_vision[row][col] = True
     
     return check, no_vision
 
-matrix = read_matrix_from_file('input.txt')
+matrix = read_matrix_from_file('input1.txt')
 
 
 while(True):

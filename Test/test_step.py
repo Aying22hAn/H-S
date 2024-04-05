@@ -123,24 +123,55 @@ def stand_valid_position(row, col):
         return True
     return False
 
+moving_delay = 50 # Seeker move a step with 1000 ms = 1s
 # Function to move the seeker randomly
 def move_seeker(position):
+    # global number_of_hiders, seeker_steps, force_announcement, seekers
+    # #if number_of_hiders == 0:
+    # #    return
+
+    # # Generate random direction (0: up, 1: down, 2: left, 3: right)
+    # direction = random.randint(0, 3)
+    # new_row, new_col = seekers[position][0], seekers[position][1]
+
+    # if direction == 0 and stand_valid_position(new_row - 1, new_col):
+    #     new_row -= 1
+    # elif direction == 1 and stand_valid_position(new_row + 1, new_col):
+    #     new_row += 1
+    # elif direction == 2 and stand_valid_position(new_row, new_col - 1):
+    #     new_col -= 1
+    # elif direction == 3 and stand_valid_position(new_row, new_col + 1):
+    #     new_col += 1
+
+    # # Move seeker if the new position is valid
+    # seekers[position] = (new_row, new_col)
+    # seeker_steps[position] += 1
+    # check_for_hiders(seekers[position]) 
+    
+    ##############################################################################
     global number_of_hiders, seeker_steps, force_announcement, seekers
     #if number_of_hiders == 0:
     #    return
 
     # Generate random direction (0: up, 1: down, 2: left, 3: right)
-    direction = random.randint(0, 3)
-    new_row, new_col = seekers[position][0], seekers[position][1]
 
-    if direction == 0 and stand_valid_position(new_row - 1, new_col):
+    #direction = random.randint(0, 3)
+    move = pygame.key.get_pressed()
+    new_row, new_col = seekers[position][0], seekers[position][1]    
+    if move[pygame.K_w] and stand_valid_position(new_row - 1, new_col):
         new_row -= 1
-    elif direction == 1 and stand_valid_position(new_row + 1, new_col):
+    elif move[pygame.K_s] and stand_valid_position(new_row + 1, new_col):
         new_row += 1
-    elif direction == 2 and stand_valid_position(new_row, new_col - 1):
+    elif move[pygame.K_a] and stand_valid_position(new_row, new_col - 1):
         new_col -= 1
-    elif direction == 3 and stand_valid_position(new_row, new_col + 1):
+    elif move[pygame.K_d] and stand_valid_position(new_row, new_col + 1):
         new_col += 1
+        
+        
+    
+
+
+    
 
     # Move seeker if the new position is valid
     seekers[position] = (new_row, new_col)
@@ -442,6 +473,7 @@ def check_surrounding(no_vision, x, y, new_x, new_y, vision_range):
            and (max(0, y - vision_range) <= new_y + dy < min(len(matrix[0]), y + vision_range + 1))
            and no_vision[new_x + dx][new_y + dy] == True):
             cross = cross + 1
+    
     if(cross == 4):
         return True    
     
