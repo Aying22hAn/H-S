@@ -1,3 +1,20 @@
+def explore_path(grid, x, y, visited, path):
+    # Thêm vị trí hiện tại vào đường đi
+    path.append((x, y))
+    visited.add((x, y))
+
+    # Định nghĩa 8 hướng có thể di chuyển
+    directions = [(0, 1), (1, 0), (0, -1), (-1, 0), (1, 1), (1, -1), (-1, 1), (-1, -1)]
+
+    for dx, dy in directions:
+        nx, ny = x + dx, y + dy
+        if 0 <= nx < len(grid) and 0 <= ny < len(grid[0]) and grid[nx][ny] == 0 and (nx, ny) not in visited:
+            explore_path(grid, nx, ny, visited, path)
+
+    return path
+
+# Giả sử grid là mảng 2D đã cho và (x, y) là vị trí bắt đầu
+# Tạo một set để lưu trữ các vị trí đã thăm và một list để lưu trữ đường đi
 def read_matrix_from_file(file_path):
     matrix = []
     with open(file_path, 'r') as file:
@@ -6,36 +23,8 @@ def read_matrix_from_file(file_path):
             matrix.append(row)
     return matrix
 
-#x => matrix
-#y => matrix[0]
-def is_valid_position(matrix, x, y, vision_range, new_x, new_y):
-    return ( 
-            #Not out of bounds
-            (0 <= new_x < len(matrix)) and (0 <= new_y < len(matrix[0]))
-            #Not in the same position
-            and (new_x != x or new_y != y)
-            #In the vision range
-            and (abs(new_x - x) <= vision_range and abs(new_y - y) <= vision_range)
-            )
-def decide_type(x, y, new_x, new_y):
-    #same row
-    if (new_x == x):
-        return 1
-    #same column
-    elif (new_y == y):
-        return 2
-    #diagonal
-    elif (abs(new_x - x) == abs(new_y - y)):
-        return 3
-    else:
-        return 4
-    
-matrix = read_matrix_from_file('input.txt')
+matrix = read_matrix_from_file("input1.txt")
+visited = set()
+path = []
 
-new_x = 4
-new_y = 3
-for dx in range(-1,2):
-    for dy in range(-1,2):
-        if is_valid_position(matrix, 4, 3, 3, new_x + dx, new_y + dy):
-            print(decide_type(4, 3, new_x + dx, new_y + dy), end = ' ')
-        
+print(path)

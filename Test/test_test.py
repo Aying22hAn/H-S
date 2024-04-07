@@ -1,9 +1,8 @@
-# import pygame
+
+import pygame
 import sys
 import random
-import pygame
 import os
-import A_Star
 
 ''' INITIALIZE GAME CONSOLE '''
 
@@ -11,6 +10,9 @@ import A_Star
 pygame.init()
 pygame.display.set_caption("Simple Hide & Seek Game")
 
+# Set window size for UI space
+width, height = 600, 650
+window_screen = pygame.display.set_mode((width, height))
 
 # Color palette
 WHITE = (255, 255, 255)
@@ -49,7 +51,7 @@ number_of_seekers = 0
 # Clock for frame rate and timer for seeker's movement delay 
 clock = pygame.time.Clock()
 moving_time = 0
-moving_delay = 100 # Seeker move a step with 1000 ms = 1s
+moving_delay = 300 # Seeker move a step with 1000 ms = 1s
 
 # Font for displaying
 font = pygame.font.Font(None, 36)
@@ -106,68 +108,7 @@ def create_button(x, y, function_str):
 
 
 
-
-
-
-
-
-
-
-''' File Handling '''
-def read_matrix_from_file(file_path):
-    matrix = []
-    with open(file_path, 'r') as file:
-        for line in file:
-            row = list(map(int, line.strip().split()))
-            matrix.append(row)
-    return matrix
-
-matrix = read_matrix_from_file('input.txt')
-def modify(matrix):
-    modify_matrix = [[cell for cell in row] for row in matrix]
-    
-    for row in range(len(matrix)):
-        for col in range(len(matrix[0])):
-            if matrix[row][col] == 1:
-                modify_matrix[row][col] = 1
-            elif matrix[row][col] == 2:
-                modify_matrix[row][col] = 0
-            elif matrix[row][col] == 3:
-                modify_matrix[row][col] = 0
-                
-    return modify_matrix
-
-modified_matrix = modify(matrix)
-
-board_size = len(matrix)
-board_size_height = len(matrix) + 2
-board_size_width = len(matrix[0]) + 2
-range_limit = 3
-
-# Set window size for UI space
-width, height = 50 * board_size_width, 50 * board_size_height
-window_screen = pygame.display.set_mode((width, height))
-
-cell_size = min(width // board_size_width - 2, height // board_size_height - 2)
-
-
-
-
-
-
-
-
-
-
 ''' FUNCTION FOR AGENT (BACK-END) '''
-
-def print_2d_array(arr):
-    for row in arr:
-        for elem in row:
-            print(elem, end=" ")
-        print()  # Move to the next line after printing each row
-    print()
-
 # Function to check if the given position is within the bounds of the map
 def stand_valid_position(row, col):
     if 0 <= row < board_size_height - 2 and 0 <= col < board_size_width - 2:
@@ -179,165 +120,8 @@ def stand_valid_position(row, col):
         return True
     return False
 
-PriorityHider = False
-PriorityAnnouncement = False
-
-
-def find_hider(matrix, no_vision, vision_range, x, y):
-    for row in range(max(0, x - vision_range), min(len(matrix), x + vision_range + 1)):
-        for col in range(max(0, y - vision_range), min(len(matrix[0]), y + vision_range + 1)):
-            if matrix[row][col] == 2 and not no_vision[row][col]:
-                global PriorityHider
-                PriorityHider = True
-                return row, col
-            
-def find_announcement():
-    pass
-            
-def calculate_direction(x, y, next_x, next_y):
-    if(next_x < x and next_y > y):
-        return 1
-    if(next_x < x and next_y == y):
-        return 2
-    if(next_x < x and next_y < y):
-        return 3
-    if(next_x == x and next_y < y):
-        return 4
-    if(next_x > x and next_y < y):
-        return 5
-    if(next_x > x and next_y == y):
-        return 6
-    if(next_x > x and next_y > y):
-        return 7
-    if(next_x == x and next_y > y):
-        return 8
-   
-def find_way_to_hider(modify_matrix, x, y, hider_x, hider_y):
-
-    answer = A_Star.A_Star(modify_matrix, A_Star.Node(None, (x, y)), A_Star.Node(None, (hider_x, hider_y)))        
-    if not answer:
-        return [(x,y)]
-    
-    path = [answer.position]
-    
-    #BackTracking
-    while answer.parent != None:
-        path.append(answer.parent.position)
-        answer = answer.parent
-    
-    path.pop()
-    
-    return path
-
-#Store path to hider
-solutionHider = [] 
-#Solution path for announcement
-solutionAnnouncement = []
-
-#for traversing matrix
-stack = []
-visited = [[False for _ in range(len(modified_matrix[0]))] for _ in range(len(modified_matrix))]
-firstIter = True
-parent = {}
-
-def traverse_matrix(modify_matrix, x, y):
-    global stack, visited, parent, firstIter
-    # Initialize a queue for BFS traversal
-    # Mark the starting cell as visited
-    
-    # Define the possible directions to move (up, down, left, right, up-left, up-right, down-left, down-right)
-    directions = [(-1, 0), (1, 0), (0, -1), (0, 1), (-1, -1), (-1, 1), (1, -1), (1, 1)]
-
-    if firstIter:
-        stack = [(x,y)]
-        parent[(x,y)] = []
-        firstIter = False
-
-    # Traverse the matrix using DFS
-    while stack:
-        # Get the current cell
-        current_x, current_y = stack.pop()
-        
-        if visited[current_x][current_y]:
-            continue
-            
-        visited[current_x][current_y] = True
-        # Check all possible directions
-        for dx, dy in directions:
-            new_x, new_y = current_x + dx, current_y + dy
-            # Check if the new cell is within the bounds of the matrix
-            if 0 <= new_x < len(modify_matrix) and 0 <= new_y < len(modify_matrix[0]):
-                # Check if the new cell is not a wall and has not been visited
-                if modify_matrix[new_x][new_y] == 0 and not visited[new_x][new_y]:
-                    # Add the new cell to the queue for further traversal
-                    stack.append((new_x, new_y))
-        
-        return current_x, current_y
-    
-TraceBack = False
-prev_position = []
-CorrectPath = []
-def decided_direction(modify_matrix, vision_range, no_vision, x, y):
-
-    global PriorityHider
-    global TraceBack
-    global CorrectPath
-    global prev_position
-    global solutionHider
-    global solutionAnnouncement
-
-    receive = []
-    if len(CorrectPath) > 0:
-        pos = CorrectPath.pop()
-        return calculate_direction(x, y, pos[0], pos[1])
-    
-    if TraceBack:
-        pos = [x, y]
-        if len(prev_position) > 0:
-            pos = prev_position.pop()
-        else: 
-            TraceBack = False
-        return calculate_direction(x, y, pos[0], pos[1])
-    
-    if not PriorityHider: 
-        receive = find_hider(matrix, no_vision, vision_range, x, y) 
-    if PriorityHider: 
-        if len(solutionHider) == 0:
-            solutionHider = find_way_to_hider(modify_matrix, x, y, receive[0], receive[1])
-            prev_position.append((x,y))
-            
-        next_position = solutionHider.pop()
-        prev_position.append(next_position)
-        if matrix[next_position[0]][next_position[1]] == 2:
-           PriorityHider = False
-           TraceBack = True
-           matrix[next_position[0]][next_position[1]] = 0           
-                 
-        return calculate_direction(x, y, next_position[0], next_position[1])
-
-    # if(PriorityAnnouncement):
-    #     next_position = solutionAnnouncement.pop()
-    #     if(len(solutionAnnouncement) == 0):
-    #         PriorityAnnouncement = False
-    #     return calculate_direction(x, y, next_position[0], next_position[1])
-
-    # receive1 = []
-    # receive1 = find_announcement()
-
-    # if(PriorityAnnouncement):
-    #     solutionAnnouncement = find_way_to_announcement(modify_matrix, x, y, receive1[0], receive1[1])
-    #     next_position = solutionAnnouncement.pop()
-    #     return calculate_direction(x, y, next_position[0], next_position[1])
-
-    next_traverse_x, next_traverse_y = traverse_matrix(modify_matrix, x, y)
-    if abs(next_traverse_x - x) > 2 or abs(next_traverse_y - y) > 2:
-        CorrectPath = find_way_to_hider(modify_matrix, x, y, next_traverse_x, next_traverse_y)    
-        pos = CorrectPath.pop()
-        return calculate_direction(x, y, pos[0], pos[1])
-    
-    return calculate_direction(x, y, next_traverse_x, next_traverse_y)
-        
-    
+moving_delay = 50 # Seeker move a step with 1000 ms = 1s
+# Function to move the seeker randomly
 def move_seeker(position):
     # global number_of_hiders, seeker_steps, force_announcement, seekers
     # #if number_of_hiders == 0:
@@ -362,47 +146,30 @@ def move_seeker(position):
     # check_for_hiders(seekers[position]) 
     
     ##############################################################################
-   
-    global number_of_hiders, seeker_steps, force_announcement, seekers, range_limit
-    no_vision = mark_vision(matrix, seekers[position][0], seekers[position][1], range_limit)
+    global number_of_hiders, seeker_steps, force_announcement, seekers
     #if number_of_hiders == 0:
     #    return
 
     # Generate random direction (0: up, 1: down, 2: left, 3: right)
 
-    #direction = random.randint(1, 9)
-    move = decided_direction(modified_matrix, range_limit, no_vision, seekers[position][0], seekers[position][1])
-    #move = direction
-    new_row, new_col = seekers[position][0], seekers[position][1]
-    
-    if move == 1 and stand_valid_position(new_row - 1, new_col + 1):
+    #direction = random.randint(0, 3)
+    move = pygame.key.get_pressed()
+    new_row, new_col = seekers[position][0], seekers[position][1]    
+    if move[pygame.K_w] and stand_valid_position(new_row - 1, new_col):
         new_row -= 1
+    elif move[pygame.K_s] and stand_valid_position(new_row + 1, new_col):
+        new_row += 1
+    elif move[pygame.K_a] and stand_valid_position(new_row, new_col - 1):
+        new_col -= 1
+    elif move[pygame.K_d] and stand_valid_position(new_row, new_col + 1):
         new_col += 1
         
-    elif move == 2 and stand_valid_position(new_row - 1, new_col):
-        new_row -= 1
         
-    elif move == 3 and stand_valid_position(new_row - 1, new_col - 1):
-        new_row -= 1
-        new_col -= 1
-        
-    elif move == 4 and stand_valid_position(new_row, new_col - 1):
-        new_col -= 1
-        
-    elif move == 5 and stand_valid_position(new_row + 1, new_col - 1):
-        new_row += 1
-        new_col -= 1
     
-    elif move == 6 and stand_valid_position(new_row + 1, new_col):
-        new_row += 1
-        
-    elif move == 7 and stand_valid_position(new_row + 1, new_col + 1):
-        new_row += 1
-        new_col += 1
+
+
     
-    elif move == 8 and stand_valid_position(new_row, new_col + 1):
-        new_col += 1
-        
+
     # Move seeker if the new position is valid
     seekers[position] = (new_row, new_col)
     seeker_steps[position] += 1
@@ -421,7 +188,7 @@ def check_for_hiders(seeker):
         display_game_board()
         create_seeker(seeker, True)
         pygame.display.flip()  # Update the display to reflect changes
-        pygame.time.wait(1000)  # Wait a bit to show the found hider
+        pygame.time.wait(2000)  # Wait a bit to show the found hider
         
         if number_of_hiders == 0:
             return
@@ -763,10 +530,25 @@ def mark_vision(matrix, x, y, vision_range):
             if(row != x and col != y and check_surrounding(no_vision, x, y, row, col, vision_range) == True):
                 no_vision[row][col] = True
     
-    return no_vision
+    return check, no_vision
 
 
+''' File Handling '''
+def read_matrix_from_file(file_path):
+    matrix = []
+    with open(file_path, 'r') as file:
+        for line in file:
+            row = list(map(int, line.strip().split()))
+            matrix.append(row)
+    return matrix
 
+matrix = read_matrix_from_file('input.txt')
+
+# Game board setting
+board_size = 10
+board_size_height = len(matrix) + 2
+board_size_width = len(matrix[0]) + 2
+cell_size = min(width // board_size_width - 2, height // board_size_height - 2)
 
 
 
@@ -814,17 +596,17 @@ with open("output.txt", "w") as file:
 # Function to create game board, hiders, and seeker
 def make_grid():
     # Calculate the number of cells that can fit in the x and y directions
-    num_cells_y = board_size_height - 2
-    num_cells_x = board_size_width - 2
-    if num_cells_y != board_size_height - 2:
-        if num_cells_y < board_size_height - 2:
-            num_cells_y += 1
-        else: num_cells_y -= 1
-        
-    if num_cells_x != board_size_width - 2:
-        if num_cells_x < board_size_width - 2:
+    num_cells_x = board_size_height - 2
+    num_cells_y = board_size_width - 2
+    if num_cells_x != board_size_height - 2:
+        if num_cells_x < board_size_height - 2:
             num_cells_x += 1
         else: num_cells_x -= 1
+        
+    if num_cells_y != board_size_width - 2:
+        if num_cells_y < board_size_width - 2:
+            num_cells_y += 1
+        else: num_cells_y -= 1
 
     for x in range(num_cells_x):
         for y in range(num_cells_y):
@@ -868,7 +650,7 @@ def display_hiders():
     
 def create_seeker(seeker, found = False):
     color = GREEN if found else BLUE
-    show_observation_range(seeker)
+    show_observation_range(seeker, 3)
     center_y, center_x = (seeker[0] + 1) * cell_size + cell_size // 2, (seeker[1] + 1) * cell_size + cell_size // 2
     pygame.draw.circle(window_screen, color, (center_x, center_y), cell_size // 2 - cell_size // 3.5)    
     
@@ -948,8 +730,8 @@ def darken_cell(x, y):
     window_screen.blit(surface, rect.topleft)
     pass
 
-def show_observation_range(position):
-    no_vision = mark_vision(matrix, position[0], position[1], range_limit)
+def show_observation_range(position, range_limit = 3):
+    check, no_vision = mark_vision(matrix, position[0], position[1], range_limit)
     
     for dx in range(-range_limit, range_limit + 1):
         for dy in range(-range_limit, range_limit + 1):
@@ -961,6 +743,8 @@ def show_observation_range(position):
             if 0 <= cell_y < len(matrix) and 0 <= cell_x < len(matrix[0]):
                 if no_vision[cell_y][cell_x] != 1:
                     darken_cell(cell_x + 1, cell_y + 1)  # Adjust for grid off
+
+    
 
 
  
@@ -996,11 +780,10 @@ while True:
             
         else:
             display_game_board()
-            #check, no_vision = mark_vision(matrix, 0, 0, 3)
             if current_time - moving_time > moving_delay:
                 moving_time = current_time
                 move_seekers()
                 
     pygame.display.flip()
-    clock.tick(3000)
+    clock.tick(10000)
     
